@@ -198,7 +198,7 @@ class main {
   
   CollisionBall() {
     //Continuar
-    font.print(0, 0, "test")
+    font.print(0, 0, "test.")
     
   }
   Play() {
