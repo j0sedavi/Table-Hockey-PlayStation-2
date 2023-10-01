@@ -44,9 +44,9 @@ let new_pad = Pads.get();
 let old_pad = new_pad;
 let pd = Pads.get();
 let pd2 = Pads.get();
-var velocidade = 4;
-var ballSpeedX = 8;
-var ballSpeedY = 8;
+var velocidade = 10;
+var ballSpeedX = 5;
+var ballSpeedY = 5;
 
 var seta = {
   x: 388,
@@ -220,20 +220,24 @@ class main {
 
     // Verificar colisão com os jogadores (paddles)
     if (
-      (Ball.X + 32 >= Players.Player1[0].X &&
-      Ball.X + 32 <= Players.Player1[0].X + 64) &&
-      (Ball.Y + 32 >= Players.Player1[0].Y &&
-      Ball.Y + 32<= Players.Player1[0].Y + 64)
+      Ball.X + 32 >= Players.Player1[0].X &&
+      Ball.X <= Players.Player1[0].X + 64 &&
+      Ball.Y + 32 >= Players.Player1[0].Y &&
+      Ball.Y <= Players.Player1[0].Y + 64
     ) {
-      ballSpeedX = -ballSpeedX; // Rebater na paddle do jogador 1
+      // Rebater na paddle do jogador 1 e levar em consideração a velocidade do paddle
+      ballSpeedX = Math.abs(ballSpeedX) * (ballSpeedX < 0 ? -1 : 1); // Manter a direção da bola
+      ballSpeedY = Math.abs(ballSpeedY) * (pd.ry > 0 ? 1 : -1); // Levar em consideração a direção do paddle
     }
     if (
-      (Ball.X + 32 >= Players.Player2[0].X &&
-      Ball.X + 32 <= Players.Player2[0].X + 64) &&
-      (Ball.Y + 32 >= Players.Player2[0].Y &&
-      Ball.Y + 32 <= Players.Player2[0].Y + 64)
+      Ball.X + 32 >= Players.Player2[0].X &&
+      Ball.X <= Players.Player2[0].X + 64 &&
+      Ball.Y + 32 >= Players.Player2[0].Y &&
+      Ball.Y <= Players.Player2[0].Y + 64
     ) {
-      ballSpeedX = -ballSpeedX; // Rebater na paddle do jogador 2
+      // Rebater na paddle do jogador 2 e levar em consideração a velocidade do paddle
+      ballSpeedX = Math.abs(ballSpeedX) * (ballSpeedX > 0 ? -1 : 1); // Manter a direção da bola
+      ballSpeedY = Math.abs(ballSpeedY) * (pd2.ly > 0 ? 1 : -1); // Levar em consideração a direção do paddle
     }
   }
 
