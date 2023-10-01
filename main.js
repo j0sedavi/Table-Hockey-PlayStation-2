@@ -45,8 +45,8 @@ let old_pad = new_pad;
 let pd = Pads.get();
 let pd2 = Pads.get();
 var velocidade = 4;
-var ballSpeedX = 5;
-var ballSpeedY = 5;
+var ballSpeedX = 8;
+var ballSpeedY = 8;
 
 var seta = {
   x: 388,
@@ -219,10 +219,20 @@ class main {
     }
 
     // Verificar colisão com os jogadores (paddles)
-    if (Ball.X < Players.Player1[0].X + 32 && Ball.Y > Players.Player1[0].Y && Ball.Y < Players.Player1[0].Y + 32) {
+    if (
+      (Ball.X + 32 >= Players.Player1[0].X &&
+      Ball.X + 32 <= Players.Player1[0].X + 64) &&
+      (Ball.Y + 32 >= Players.Player1[0].Y &&
+      Ball.Y + 32<= Players.Player1[0].Y + 64)
+    ) {
       ballSpeedX = -ballSpeedX; // Rebater na paddle do jogador 1
     }
-    if (Ball.X  > Players.Player2[0].X && Ball.Y > Players.Player2[0].Y && Ball.Y < Players.Player2[0].Y + 32) {
+    if (
+      (Ball.X + 32 >= Players.Player2[0].X &&
+      Ball.X + 32 <= Players.Player2[0].X + 64) &&
+      (Ball.Y + 32 >= Players.Player2[0].Y &&
+      Ball.Y + 32 <= Players.Player2[0].Y + 64)
+    ) {
       ballSpeedX = -ballSpeedX; // Rebater na paddle do jogador 2
     }
   }
