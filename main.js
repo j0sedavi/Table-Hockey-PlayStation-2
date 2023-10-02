@@ -40,8 +40,9 @@ var Players = {
 };
 // variaveis do jogo
 var Ball = { X: 320, Y: 224 };
-var minOriginal = 0;
-var maxOriginal = 200;
+// eixo anolosico da maxinha
+var minOriginal = -127;
+var maxOriginal = 128;
 let new_pad = Pads.get();
 let old_pad = new_pad;
 let pd = Pads.get();
@@ -60,6 +61,8 @@ var seta = {
 
 var Count = 3;
 var selected = 0;
+
+
 
 class main {
   SetScreen() {
@@ -102,9 +105,20 @@ class main {
       seta.y = seta.slot0[0].y;
     }
   }
-  normalizeValue(rx, minOriginal, maxOriginal, minNew=4, maxNew=10) {
-    return minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal);
+  ResetBall(){
+    ball.X = 320;
+    ball.Y = 224;
   }
+  
+
+  normalizeValue(rx, minOriginal, maxOriginal, minNew=4, maxNew=10) {
+    if (rx < 0){
+      return Math.sign(minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal));
+    }else{
+      return minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal);
+    }
+  }
+
   Menu() {
     old_pad = new_pad;
     new_pad = Pads.get();
@@ -212,13 +226,13 @@ class main {
       screen = 0;
     }
   }
-
+  
   CollisionBall() {
     // Verificar colisão com as bordas da tela para a bola
-    if (Ball.X + 20 > canvas.width || Ball.X - 20 < 0) {
+    if (Ball.X + 32 > canvas.width || Ball.X - 32 < 0) {
       ballSpeedX = -ballSpeedX; // Inverter a direção no eixo X
     }
-    if (Ball.Y + 20 > canvas.height || Ball.Y - 20 < 0) {
+    if (Ball.Y + 32 > canvas.height || Ball.Y - 32 < 0) {
       ballSpeedY = -ballSpeedY; // Inverter a direção no eixo Y
     }
 
@@ -229,27 +243,26 @@ class main {
       Ball.Y + 32 >= Players.Player1[0].Y &&
       Ball.Y <= Players.Player1[0].Y + 64
     ) {
-      // Rebater na paddle do jogador 1 e levar em consideração a velocidade do paddle
-      ballSpeedX = this.normalizeValue(pd.rx, minOriginal, maxOriginal);
-      ballSpeedY = this.normalizeValue(pd.ry, minOriginal, maxOriginal);
-      
+      ballSpeedY += this.normalizeValue(pd.ry, minOriginal, maxOriginal);
+      ballSpeedX += this.normalizeValue(pd.rx, minOriginal, maxOriginal);
     }
     if (
       Ball.X + 32 >= Players.Player2[0].X &&
-      Ball.X <= Players.Player2[0].X + 64 &&
+      Ball.X  <= Players.Player2[0].X + 64 &&
       Ball.Y + 32 >= Players.Player2[0].Y &&
       Ball.Y <= Players.Player2[0].Y + 64
     ) {
-      // Rebater na paddle do jogador 2 e levar em consideração a velocidade do paddle
-      ballSpeedX = this.normalizeValue(pd2.rx, minOriginal, maxOriginal);
-      ballSpeedY = this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
-      
+      ballSpeedY += this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
+      ballSpeedX += this.normalizeValue(pd2.rx, minOriginal, maxOriginal);
     }
   }
-
+  
   MoveBall() {
     Ball.X += ballSpeedX;
     Ball.Y += ballSpeedY;
+    if(Pads.check(new_pad,Pads.UP)){
+      this.ResetBall();
+    }
   }
 
   Play() {
@@ -260,6 +273,7 @@ class main {
     this.CollisionBall();
     this.ColisionWall();
     this.draw();
+    
   }
 }
 
