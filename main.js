@@ -110,6 +110,14 @@ class main {
     ball.Y = 224;
   }
   
+  DesacelateBall(){
+    if (ballSpeedX > 8){
+      ballSpeedX--;
+    }
+    if(ballSpeedY > 8){
+      ballSpeedY--;
+    }
+  }
 
   normalizeValue(rx, minOriginal, maxOriginal, minNew=4, maxNew=10) {
     if (rx < 0){
@@ -229,10 +237,10 @@ class main {
   
   CollisionBall() {
     // Verificar colisão com as bordas da tela para a bola
-    if (Ball.X + 32 > canvas.width || Ball.X - 32 < 0) {
+    if (Ball.X + 32> canvas.width || Ball.X  < 0) {
       ballSpeedX = -ballSpeedX; // Inverter a direção no eixo X
     }
-    if (Ball.Y + 32 > canvas.height || Ball.Y - 32 < 0) {
+    if (Ball.Y + 32> canvas.height || Ball.Y < 0) {
       ballSpeedY = -ballSpeedY; // Inverter a direção no eixo Y
     }
 
@@ -260,9 +268,7 @@ class main {
   MoveBall() {
     Ball.X += ballSpeedX;
     Ball.Y += ballSpeedY;
-    if(Pads.check(new_pad,Pads.UP)){
-      this.ResetBall();
-    }
+    
   }
 
   Play() {
@@ -273,6 +279,9 @@ class main {
     this.CollisionBall();
     this.ColisionWall();
     this.draw();
+    this.DesacelateBall();
+   
+     
     
   }
 }
