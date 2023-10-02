@@ -44,7 +44,7 @@ let new_pad = Pads.get();
 let old_pad = new_pad;
 let pd = Pads.get();
 let pd2 = Pads.get();
-var velocidade = 10;
+var velocidade = 6;
 var ballSpeedX = 5;
 var ballSpeedY = 5;
 
@@ -225,9 +225,13 @@ class main {
       Ball.Y + 32 >= Players.Player1[0].Y &&
       Ball.Y <= Players.Player1[0].Y + 64
     ) {
+      if(pd.rx > 0 && (pd2.ry < 10 && pd2 > - 10)){
+        ballSpeedY = 0;
+      }else{
       // Rebater na paddle do jogador 1 e levar em consideração a velocidade do paddle
       ballSpeedX = Math.abs(ballSpeedX) * (ballSpeedX < 0 ? -1 : 1); // Manter a direção da bola
       ballSpeedY = Math.abs(ballSpeedY) * (pd.ry > 0 ? 1 : -1); // Levar em consideração a direção do paddle
+      }
     }
     if (
       Ball.X + 32 >= Players.Player2[0].X &&
@@ -235,9 +239,13 @@ class main {
       Ball.Y + 32 >= Players.Player2[0].Y &&
       Ball.Y <= Players.Player2[0].Y + 64
     ) {
+      if(pd2.rx < 0 && (pd2.ry < 10 && pd2 > - 10)){
+        ballSpeedY = 0;
+      }else{
       // Rebater na paddle do jogador 2 e levar em consideração a velocidade do paddle
       ballSpeedX = Math.abs(ballSpeedX) * (ballSpeedX > 0 ? -1 : 1); // Manter a direção da bola
       ballSpeedY = Math.abs(ballSpeedY) * (pd2.ly > 0 ? 1 : -1); // Levar em consideração a direção do paddle
+      }
     }
   }
 
