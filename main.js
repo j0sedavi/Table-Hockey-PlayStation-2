@@ -38,8 +38,10 @@ var Players = {
   Player1: [{ X: 569, Y: 195 }],
   Player2: [{ X: 13, Y: 195 }]
 };
-
+// variaveis do jogo
 var Ball = { X: 320, Y: 224 };
+var minOriginal = 0;
+var maxOriginal = 200;
 let new_pad = Pads.get();
 let old_pad = new_pad;
 let pd = Pads.get();
@@ -100,7 +102,9 @@ class main {
       seta.y = seta.slot0[0].y;
     }
   }
-
+  normalizeValue(rx, minOriginal, maxOriginal, minNew=4, maxNew=10) {
+    return minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal);
+  }
   Menu() {
     old_pad = new_pad;
     new_pad = Pads.get();
@@ -225,13 +229,10 @@ class main {
       Ball.Y + 32 >= Players.Player1[0].Y &&
       Ball.Y <= Players.Player1[0].Y + 64
     ) {
-      if(pd.rx > 0 && (pd2.ry < 10 && pd2 > - 10)){
-        ballSpeedY = 0;
-      }else{
       // Rebater na paddle do jogador 1 e levar em consideração a velocidade do paddle
-      ballSpeedX = Math.abs(ballSpeedX) * (ballSpeedX < 0 ? -1 : 1); // Manter a direção da bola
-      ballSpeedY = Math.abs(ballSpeedY) * (pd.ry > 0 ? 1 : -1); // Levar em consideração a direção do paddle
-      }
+      ballSpeedX = this.normalizeValue(pd.rx, minOriginal, maxOriginal);
+      ballSpeedY = this.normalizeValue(pd.ry, minOriginal, maxOriginal);
+      
     }
     if (
       Ball.X + 32 >= Players.Player2[0].X &&
@@ -239,13 +240,10 @@ class main {
       Ball.Y + 32 >= Players.Player2[0].Y &&
       Ball.Y <= Players.Player2[0].Y + 64
     ) {
-      if(pd2.rx < 0 && (pd2.ry < 10 && pd2 > - 10)){
-        ballSpeedY = 0;
-      }else{
       // Rebater na paddle do jogador 2 e levar em consideração a velocidade do paddle
-      ballSpeedX = Math.abs(ballSpeedX) * (ballSpeedX > 0 ? -1 : 1); // Manter a direção da bola
-      ballSpeedY = Math.abs(ballSpeedY) * (pd2.ly > 0 ? 1 : -1); // Levar em consideração a direção do paddle
-      }
+      ballSpeedX = this.normalizeValue(pd2.rx, minOriginal, maxOriginal);
+      ballSpeedY = this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
+      
     }
   }
 
