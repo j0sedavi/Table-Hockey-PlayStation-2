@@ -118,7 +118,7 @@ class main {
     }
   }
   Check_gol_player2() {
-    if ((Ball.X >= 639) && (Ball.Y + 32 >= 160 && Ball.Y <= 287)) {
+    if ((Ball.X + 32 >= 639) && (Ball.Y + 32 >= 160 && Ball.Y <= 287)) {
       Players.Player1[0].gols += 1;
       this.ResetBall();
       this.ResetPlayers();
