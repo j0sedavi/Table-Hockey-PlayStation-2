@@ -1,4 +1,4 @@
-var osdfnt = new Font();
+// {"name": "Table Hockey", "author": "Alex Dev", "version": "04012023", "icon": "app_icon.png", "file": "main.js"}
 var font = new Font("fonts/LEMONMILK-Regular.otf");
 let canvas = Screen.getMode();
 canvas.width = 640;
@@ -35,11 +35,11 @@ font.color = Black;
 var screen = 0;
 
 var Players = {
-  Player1: [{ X: 569, Y: 195, radius: 64 }],
-  Player2: [{ X: 13, Y: 195, radius: 64 }]
+  Player1: [{ X: 569, Y: 195, gols : 0}],
+  Player2: [{ X: 13, Y: 195, gols : 0 }]
 };
 // variaveis do jogo
-var Ball = { X: 320, Y: 224 , radius: 32 };
+var Ball = { X: 320, Y: 224 };
 // eixo anolosico da maxinha
 var minOriginal = -127;
 var maxOriginal = 128;
@@ -50,9 +50,6 @@ let pd2 = Pads.get();
 var velocidade = 10;
 var ballSpeedX = 5;
 var ballSpeedY = 5;
-var pointers_play1 = 0;
-var pointers_play2 = 0;
-var pointers_cpu = 0;
 
 var seta = {
   x: 388,
@@ -76,7 +73,12 @@ class main {
       this.Play();
     }
   }
-
+  ResetPlayers(){
+    Players.Player1[0].X = 569;
+    Players.Player1[0].Y = 195;
+    Players.Player2[0].X = 13;
+    Players.Player2[0].Y = 195;
+  }
   MoveSetaUp() {
     if (selected == 0) {
       selected = 2;
@@ -109,13 +111,17 @@ class main {
     }
   }
   Check_gol_player1() {
-    if ((Ball.X == 1) && (ball.Y + 32 >= 160 || ball.Y <= 287)) {
-      pointers_play1 += 1;
+    if ((Ball.X <= 1) && (Ball.Y + 32 >= 160 && Ball.Y <= 287)) {
+      Players.Player2[0].gols += 1;
+      this.ResetBall();
+      this.ResetPlayers();
     }
   }
   Check_gol_player2() {
-    if ((Ball.X == 639) && (ball.Y + 32 >= 160 || ball.Y <= 287)) {
-      pointers_play2 += 1;
+    if ((Ball.X >= 639) && (Ball.Y + 32 >= 160 && Ball.Y <= 287)) {
+      Players.Player1[0].gols += 1;
+      this.ResetBall();
+      this.ResetPlayers();
     }
   }
 
@@ -149,7 +155,7 @@ class main {
     } else if(rx > 0){
       return minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal);
     }else{
-      return 0
+      return 0;
     }
   }
 
@@ -251,8 +257,7 @@ class main {
     GameImage.ball.draw(Ball.X, Ball.Y);
     GameImage.red.draw(Players.Player1[0].X, Players.Player1[0].Y);
     GameImage.blue.draw(Players.Player2[0].X, Players.Player2[0].Y);
-    //font.color(0,0,0,);
-    //font.print(10, 10, `red ${pointers_play2} x ${pointers_play1} Blue`);
+    font.print(210, 10, "Blue " + Players.Player1[0].gols + " x " + Players.Player2[0].gols + " Red");
   }
 
   start() {
@@ -263,7 +268,22 @@ class main {
       screen = 0;
     }
   }
-
+  WinnerPlay1(){
+    if(Players.Player1[0].gols == 10){
+      font.print(210, 220, "Red WINNER");
+      this.ResetPlayers();
+      this.ResetBall();
+      Players.Player1[0].gols = 0;
+  }
+  }
+  WinnerPlay2(){
+    if(Players.Player2[0].gols == 10){
+      font.print(210, 220, "Blue WINNER");
+      this.ResetPlayers();
+      this.ResetBall();
+      Players.Player2[0].gols = 0;
+  }
+  }
   CollisionBall() {
     // Verificar colisão com as bordas da tela para a bola
     if (Ball.X + 32 >= canvas.width || Ball.X <= 0) {
@@ -278,7 +298,7 @@ class main {
     Ball.X + 32 >= Players.Player2[0].X && Ball.X <= Players.Player2[0].X + 64 && Ball.Y + 32 >= Players.Player2[0].Y && Ball.Y <= Players.Player2[0].Y + 64
     ) {
       ballSpeedY = this.normalizeValue(pd.ry, minOriginal, maxOriginal);
-      ballSpeedX = -this.normalizeValue(pd.rx, minOriginal, maxOriginal);
+      ballSpeedX = this.normalizeValue(pd.rx, minOriginal, maxOriginal);
     }
     if (Ball.X <= Players.Player1[0].X + 64 && Ball.X + 32 >= Players.Player1[0].X && Ball.Y + 32 >= Players.Player1[0].Y && Ball.Y <= Players.Player1[0].Y + 64) {
       ballSpeedY = this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
@@ -309,9 +329,8 @@ class main {
     this.DesacelateBall();
     this.Check_gol_player1();
     this.Check_gol_player2();
-    
-
-
+    this.WinnerPlay1();
+    this.WinnerPlay2();
   }
 }
 
