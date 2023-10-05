@@ -1,8 +1,11 @@
-let valor_atual = 100;  // Valor inicial
-const valor_desejado = 50;  // Valor que queremos alcançar
-
-while (valor_atual > valor_desejado) {
-    valor_atual--;  // Decrementar o valor_atual
-}
-
-console.log("O valor atual é:", valor_atual);  // Valor_atual agora é igual a valor_desejado
+function normalizeValue(rx, minOriginal, maxOriginal, minNew = 4, maxNew = 10) {
+    if (rx < 0) {
+      return -(minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal));
+    } else if(rx > 0){
+      return minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal);
+    }else{
+      return 0;
+    }
+  }
+console.log(normalizeValue(-20, -127, 128));
+console.log(normalizeValue(20, -127, 128));

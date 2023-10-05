@@ -39,7 +39,7 @@ var Players = {
   Player2: [{ X: 13, Y: 195, gols : 0 }]
 };
 // variaveis do jogo
-var Ball = { X: 320, Y: 224 };
+var Ball = { X: 304, Y: 208};
 // eixo anolosico da maxinha
 var minOriginal = -127;
 var maxOriginal = 128;
@@ -146,12 +146,12 @@ class main {
   ResetBall(){
     ballSpeedX = 0;
     ballSpeedY = 0;
-    Ball.X = 320;
-    Ball.Y = 224;
+    Ball.X = 304;
+    Ball.Y = 208;
   }
   normalizeValue(rx, minOriginal, maxOriginal, minNew = 4, maxNew = 10) {
     if (rx < 0) {
-      return Math.sign(minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal));
+      return -(minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal));
     } else if(rx > 0){
       return minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal);
     }else{
@@ -271,7 +271,10 @@ class main {
   WinnerPlay1(){
     if(Players.Player1[0].gols == 10){
       font.print(210, 220, "Red WINNER");
-      this.ResetPlayers();
+      for (let c = 0; c < 50; c++){
+        c++;
+      }
+      this.ResetPlayers(), 3000;
       this.ResetBall();
       Players.Player1[0].gols = 0;
   }
@@ -279,7 +282,10 @@ class main {
   WinnerPlay2(){
     if(Players.Player2[0].gols == 10){
       font.print(210, 220, "Blue WINNER");
-      this.ResetPlayers();
+      for (let c = 0; c < 50; c++){
+        c++;
+      }
+      this.ResetPlayers(), 3000;
       this.ResetBall();
       Players.Player2[0].gols = 0;
   }
@@ -301,8 +307,8 @@ class main {
       ballSpeedX = this.normalizeValue(pd.rx, minOriginal, maxOriginal);
     }
     if (Ball.X <= Players.Player1[0].X + 64 && Ball.X + 32 >= Players.Player1[0].X && Ball.Y + 32 >= Players.Player1[0].Y && Ball.Y <= Players.Player1[0].Y + 64) {
-      ballSpeedY = this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
-      ballSpeedX = this.normalizeValue(pd2.rx, minOriginal, maxOriginal);
+      ballSpeedY += this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
+      ballSpeedX += this.normalizeValue(pd2.rx, minOriginal, maxOriginal);
     }
     if (Ball.X + 20 > canvas.width || Ball.X + 15 < 0) {
       ballSpeedX = -25;
