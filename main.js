@@ -45,8 +45,8 @@ var minOriginal = -127;
 var maxOriginal = 128;
 let new_pad = Pads.get();
 let old_pad = new_pad;
-let pd = Pads.get();
-let pd2 = Pads.get();
+let pd = Pads.get(0);
+let pd2 = Pads.get(1);
 var velocidade = 10;
 var ballSpeedX = 5;
 var ballSpeedY = 5;
@@ -71,6 +71,9 @@ class main {
     }
     if (screen == 1) {
       this.Play();
+    }
+    if (screen == 2){
+      this.Credits();
     }
   }
   ResetPlayers(){
@@ -124,7 +127,9 @@ class main {
       this.ResetPlayers();
     }
   }
+  Play_cpu(){
 
+  }
   DesacelateBall() {
     //desacelacao do vetores positos
     if (ballSpeedX > 8) {
@@ -158,10 +163,13 @@ class main {
       return 0;
     }
   }
-
+  Credits(){
+    font.print(200,200, "alex dev");
+    screen=0;
+  }
   Menu() {
     old_pad = new_pad;
-    new_pad = Pads.get();
+    new_pad = Pads.get(0);
 
     if (Pads.check(new_pad, Pads.UP) && !Pads.check(old_pad, Pads.UP)) {
       this.MoveSetaUp();
@@ -173,6 +181,16 @@ class main {
     if (Pads.check(new_pad, Pads.CROSS) && !Pads.check(old_pad, Pads.CROSS) && selected == 0) {
       screen = 1;
     }
+    if (Pads.check(new_pad, Pads.CROSS) && !Pads.check(old_pad, Pads.CROSS) && selected == 1) {
+      screen = 1;
+    }
+    if (Pads.check(new_pad, Pads.CROSS) && !Pads.check(old_pad, Pads.CROSS) && selected == 2) {
+      screen = 2;
+      
+    }
+    if (Pads.check(new_pad, Pads.TRIANGLE) && !Pads.check(old_pad, Pads.TRIANGLE)){
+      screen = 0;
+    }
 
     MenuImage.menu.draw(0, 0);
     MenuImage.play.draw(259, 254);
@@ -182,7 +200,7 @@ class main {
   }
 
   Movep1() {
-    pd = Pads.get();
+    pd = Pads.get(0);
     if (pd.rx < -25) {
       Players.Player1[0].X = Players.Player1[0].X - velocidade;
     }
@@ -198,7 +216,7 @@ class main {
   }
 
   Movep2() {
-    pd2 = Pads.get();
+    pd2 = Pads.get(1);
     if (pd2.lx < -25) {
       Players.Player2[0].X = Players.Player2[0].X - velocidade;
     }
@@ -271,9 +289,6 @@ class main {
   WinnerPlay1(){
     if(Players.Player1[0].gols == 10){
       font.print(210, 220, "Red WINNER");
-      for (let c = 0; c < 50; c++){
-        c++;
-      }
       this.ResetPlayers(), 3000;
       this.ResetBall();
       Players.Player1[0].gols = 0;
@@ -282,9 +297,6 @@ class main {
   WinnerPlay2(){
     if(Players.Player2[0].gols == 10){
       font.print(210, 220, "Blue WINNER");
-      for (let c = 0; c < 50; c++){
-        c++;
-      }
       this.ResetPlayers(), 3000;
       this.ResetBall();
       Players.Player2[0].gols = 0;
@@ -309,12 +321,28 @@ class main {
     if (Ball.X <= Players.Player1[0].X + 64 && Ball.X + 32 >= Players.Player1[0].X && Ball.Y + 32 >= Players.Player1[0].Y && Ball.Y <= Players.Player1[0].Y + 64) {
       ballSpeedY += this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
       ballSpeedX += this.normalizeValue(pd2.rx, minOriginal, maxOriginal);
+      if(selected == 1){
+        ballSpeedY = this.normalizeValue(Players.Player1[0].Y, minOriginal, maxOriginal);
+        ballSpeedX = -this.normalizeValue(Players.Player1[0].X, minOriginal, maxOriginal);
+      }
     }
     if (Ball.X + 20 > canvas.width || Ball.X + 15 < 0) {
       ballSpeedX = -25;
     }
     if (Ball.Y + 20 > canvas.height || Ball.Y + 15 < 0) {
       ballSpeedY = -25;
+    }
+    if(selected == 1){
+      if (Players.Player1[0].Y + 64 / 2 < Ball.Y) {
+        Players.Player1[0].Y += 10;  // Ajuste a velocidade da CPU aqui (atualmente 3 pixels por frame)
+      } else {
+        Players.Player1[0].Y -= 10;  // Ajuste a velocidade da CPU aqui (atualmente 3 pixels por frame)
+      }
+      if (Players.Player1[0].X + 64 / 2 < Ball.Y) {
+        Players.Player1[0].X += 10;  // Ajuste a velocidade da CPU aqui (atualmente 3 pixels por frame)
+      } else {
+        Players.Player1[0].X -= 10;  // Ajuste a velocidade da CPU aqui (atualmente 3 pixels por frame)
+      }
     }
   }
 
