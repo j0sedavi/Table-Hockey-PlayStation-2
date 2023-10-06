@@ -45,8 +45,8 @@ var minOriginal = -127;
 var maxOriginal = 128;
 let new_pad = Pads.get();
 let old_pad = new_pad;
-let pd = Pads.get(0);
-let pd2 = Pads.get(1);
+let pd = Pads.get();
+let pd2 = Pads.get();
 var velocidade = 10;
 var ballSpeedX = 5;
 var ballSpeedY = 5;
@@ -127,9 +127,6 @@ class main {
       this.ResetPlayers();
     }
   }
-  Play_cpu(){
-
-  }
   DesacelateBall() {
     //desacelacao do vetores positos
     if (ballSpeedX > 8) {
@@ -154,7 +151,7 @@ class main {
     Ball.X = 304;
     Ball.Y = 208;
   }
-  normalizeValue(rx, minOriginal, maxOriginal, minNew = 4, maxNew = 10) {
+  normalizeValue(rx, minOriginal, maxOriginal, minNew = 1, maxNew = 8) {
     if (rx < 0) {
       return -(minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal));
     } else if(rx > 0){
@@ -164,12 +161,15 @@ class main {
     }
   }
   Credits(){
-    font.print(200,200, "alex dev");
-    screen=0;
+    for(let c =0; c < 300; c++){
+      font.print(200,c, "Table Hockey \n Alex-DevGamer \n Athena Env \n Daniel Santos");
+      os.sleep(1000);
+    }
+    screen = 0;
   }
   Menu() {
     old_pad = new_pad;
-    new_pad = Pads.get(0);
+    new_pad = Pads.get();
 
     if (Pads.check(new_pad, Pads.UP) && !Pads.check(old_pad, Pads.UP)) {
       this.MoveSetaUp();
@@ -180,6 +180,7 @@ class main {
 
     if (Pads.check(new_pad, Pads.CROSS) && !Pads.check(old_pad, Pads.CROSS) && selected == 0) {
       screen = 1;
+      this.ResetBall();
     }
     if (Pads.check(new_pad, Pads.CROSS) && !Pads.check(old_pad, Pads.CROSS) && selected == 1) {
       screen = 1;
@@ -216,7 +217,7 @@ class main {
   }
 
   Movep2() {
-    pd2 = Pads.get(1);
+    pd2 = Pads.get();
     if (pd2.lx < -25) {
       Players.Player2[0].X = Players.Player2[0].X - velocidade;
     }
@@ -319,8 +320,8 @@ class main {
       ballSpeedX = this.normalizeValue(pd.rx, minOriginal, maxOriginal);
     }
     if (Ball.X <= Players.Player1[0].X + 64 && Ball.X + 32 >= Players.Player1[0].X && Ball.Y + 32 >= Players.Player1[0].Y && Ball.Y <= Players.Player1[0].Y + 64) {
-      ballSpeedY += this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
-      ballSpeedX += this.normalizeValue(pd2.rx, minOriginal, maxOriginal);
+      ballSpeedY = this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
+      ballSpeedX = this.normalizeValue(pd2.rx, minOriginal, maxOriginal);
       if(selected == 1){
         ballSpeedY = this.normalizeValue(Players.Player1[0].Y, minOriginal, maxOriginal);
         ballSpeedX = -this.normalizeValue(Players.Player1[0].X, minOriginal, maxOriginal);
