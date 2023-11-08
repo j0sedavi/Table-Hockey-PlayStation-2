@@ -5,7 +5,7 @@ canvas.width = 640;
 canvas.height = 448;
 Screen.setMode(canvas);
 
-const imagepath = "Image/";
+
 
 const colors = {
   Black: Color.new(0, 0, 0),
@@ -14,30 +14,38 @@ const colors = {
   Blue: Color.new(48, 92, 255)
 };
 
+const sounds = {
+  ball_audio: Sound.load("assets\sound\ball_to_wall.wav")
+}
 const MenuImage = {
-  menu: new Image(imagepath + "Menu.png"),
-  play: new Image(imagepath + "play.png"),
-  settings: new Image(imagepath + "settings.png"),
-  credits: new Image(imagepath + "credits.png"),
-  seta: new Image(imagepath + "seta.png")
+  menu: new Image("assets/mainmenu/mainmenu_img_topbg.png"),
+  play: new Image("assets/mainmenu/mainmenu_btn_2player.png"),
+  settings: new Image("assets/mainmenu/mainmenu_btn_vscpu.png"),
+  credits: new Image("assets/mainmenu/option_btn_gdpr.png"),
+  seta: new Image("assets/mainmenu/Check.png")
 };
-
-const GameImage = {
-  bg: new Image(imagepath + "bg.png"),
-  ball: new Image(imagepath + "ball.png"),
-  red: new Image(imagepath + "red.png"),
-  blue: new Image(imagepath + "blue.png")
-};
-
-const Black = Color.new(0, 0, 0);
-font.color = Black;
-
-var screen = 0;
-
 var Players = {
   Player1: [{ X: 569, Y: 195, gols : 0}],
   Player2: [{ X: 13, Y: 195, gols : 0 }]
 };
+
+const GameImage = {
+  bg: new Image("assets/game/campo.png"),
+  ball: new Image("assets/game/ball.png"),
+  red: new Image("assets/game/red_paddle.png"),
+  blue: new Image("assets/game/blue_paddle.png"),
+  winner: new Image("assets/game/result/result_text_youwin.png"),
+  loser: new Image("assets/game/result/result_text_youlose.png"),
+  nums_red: new Image(`assets/num/num_airhockey_${Players.Player2[0].gols}.png`),
+  nums_blue: new Image(`assets/num/num_blue_${Players.Player1[0].gols}.png`)
+};
+
+const Black = Color.new(255, 255, 255);
+font.color = Black;
+
+var screen = 0;
+
+
 // variaveis do jogo
 var Ball = { X: 304, Y: 208};
 // eixo anolosico da maxinha
@@ -55,8 +63,8 @@ var seta = {
   x: 388,
   y: 266,
   slot0: [{ x: 388, y: 266 }],
-  slot1: [{ x: 414, y: 321 }],
-  slot2: [{ x: 401, y: 377 }]
+  slot1: [{ x: 388, y: 321 }],
+  slot2: [{ x: 388, y: 377 }]
 };
 
 var Count = 3;
@@ -161,11 +169,12 @@ class main {
     }
   }
   Credits(){
-    for(let c =0; c < 300; c++){
-      font.print(200,c, "Table Hockey \n Alex-DevGamer \n Athena Env \n Daniel Santos");
-      os.sleep(1000);
-    }
+    for ( var c = 448; c > 0; c--){
+    
+    font.print(200,200, "Table Hockey Alex-DevGamer Athena Env Daniel Santos");
+    };
     screen = 0;
+    
   }
   Menu() {
     old_pad = new_pad;
@@ -194,9 +203,9 @@ class main {
     }
 
     MenuImage.menu.draw(0, 0);
-    MenuImage.play.draw(259, 254);
-    MenuImage.settings.draw(234, 310);
-    MenuImage.credits.draw(243, 367);
+    MenuImage.play.draw(224, 254);
+    MenuImage.settings.draw(224, 310);
+    MenuImage.credits.draw(224, 367);
     MenuImage.seta.draw(seta.x, seta.y);
   }
 
@@ -269,6 +278,8 @@ class main {
       Players.Player2[0].X = 0;
     }
     //Bola
+    Sound.setVolume(100, 0);
+    Sound.play(sounds.ball_audio, 0);
   }
 
   draw() {
@@ -276,7 +287,10 @@ class main {
     GameImage.ball.draw(Ball.X, Ball.Y);
     GameImage.red.draw(Players.Player1[0].X, Players.Player1[0].Y);
     GameImage.blue.draw(Players.Player2[0].X, Players.Player2[0].Y);
-    font.print(210, 10, "Blue " + Players.Player1[0].gols + " x " + Players.Player2[0].gols + " Red");
+    GameImage.nums_blue.draw(250,10);
+    GameImage.nums_red.draw(330,10);
+    font.print(100,100, Players.Player1[0].gols);
+    
   }
 
   start() {
@@ -290,7 +304,7 @@ class main {
   WinnerPlay1(){
     if(Players.Player1[0].gols == 10){
       font.print(210, 220, "Red WINNER");
-      this.ResetPlayers(), 3000;
+      this.ResetPlayers();
       this.ResetBall();
       Players.Player1[0].gols = 0;
   }
