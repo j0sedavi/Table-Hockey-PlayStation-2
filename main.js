@@ -1,4 +1,4 @@
-// {"name": "Table Hockey", "author": "Alex Dev", "version": "04012023", "icon": "app_icon.png", "file": "main.js"}
+// {"name": "Air Hockey Challenger", "author": "Alex Dev", "version": "04012023", "icon": "app_icon.png", "file": "main.js"}
 var font = new Font("fonts/LEMONMILK-Regular.otf");
 let canvas = Screen.getMode();
 canvas.width = 640;
@@ -6,9 +6,17 @@ canvas.height = 448;
 Screen.setMode(canvas);
 
 Sound.setVolume(100);
-Sound.deinit();
-var ball_audio = Sound.load("assets/sound/ball_to_wall.wav");
-let timer = Timer.new();
+Sound.setVolume(100,0);
+
+/*let sounds={
+  ball_audio: Sound.load("assets/sound/ball_to_wall.wav"),
+  paddle_audio: Sound.load("assets/sound/ball_paddle.wav"),
+  thema: Sound.load("assets/sound/theme.wav"),
+  youlose: Sound.load("assets/sound/you loser.wav"),
+  winner: Sound.load("assets/sound/you win.wav"),
+  trobeta: Sound.load("assets/sound/snd09.wav")
+}*/
+
 
 const colors = {
   Black: Color.new(0, 0, 0),
@@ -323,15 +331,18 @@ class main {
     // Verificar colisão com as bordas da tela para a bola
     if (Ball.X + 64 >= canvas.width || Ball.X <= 0) {
       ballSpeedX = -ballSpeedX; // Inverter a direção no eixo X
+      sound.play(sounds.ball_audio);
     }
     if (Ball.Y + 64 >= canvas.height || Ball.Y <= 0) {
-      ballSpeedY = -ballSpeedY; // Inverter a direçãeixo Yo no 
+      ballSpeedY = -ballSpeedY; // Inverter a direçãeixo Yo no
+      sound.play(sounds.ball_audio);
     }
 
     // Verificar colisão com os jogadores (paddles)
     if (// paddle right
     Ball.X + 64 >= Players.Player2[0].X && Ball.X <= Players.Player2[0].X + 100 && Ball.Y + 64 >= Players.Player2[0].Y && Ball.Y <= Players.Player2[0].Y + 100
     ) {
+      sound.play(sounds.paddle_audio);
       ballSpeedY = this.normalizeValue(pd.ry, minOriginal, maxOriginal);
       ballSpeedX = this.normalizeValue(pd.rx, minOriginal, maxOriginal);
     }
@@ -339,6 +350,7 @@ class main {
       ballSpeedY = this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
       ballSpeedX = this.normalizeValue(pd2.rx, minOriginal, maxOriginal);
       if(selected == 1){
+        sound.play(sounds.paddle_audio);
         ballSpeedY = this.normalizeValue(Players.Player1[0].Y, minOriginal, maxOriginal);
         ballSpeedX = -this.normalizeValue(Players.Player1[0].X, minOriginal, maxOriginal);
       }
