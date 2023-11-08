@@ -5,7 +5,10 @@ canvas.width = 640;
 canvas.height = 448;
 Screen.setMode(canvas);
 
-
+Sound.setVolume(100);
+Sound.deinit();
+var ball_audio = Sound.load("assets/sound/ball_to_wall.wav");
+let timer = Timer.new();
 
 const colors = {
   Black: Color.new(0, 0, 0),
@@ -14,9 +17,7 @@ const colors = {
   Blue: Color.new(48, 92, 255)
 };
 
-const sounds = {
-  ball_audio: Sound.load("assets\sound\ball_to_wall.wav")
-}
+
 const MenuImage = {
   menu: new Image("assets/mainmenu/mainmenu_img_topbg.png"),
   play: new Image("assets/mainmenu/mainmenu_btn_2player.png"),
@@ -73,6 +74,7 @@ var selected = 0;
 
 
 class main {
+  
   SetScreen() {
     if (screen == 0) {
       this.Menu();
@@ -122,14 +124,14 @@ class main {
     }
   }
   Check_gol_player1() {
-    if ((Ball.X <= 1) && (Ball.Y + 32 >= 160 && Ball.Y <= 287)) {
+    if ((Ball.X <= 1) && (Ball.Y + 64 >= 160 && Ball.Y <= 287)) {
       Players.Player2[0].gols += 1;
       this.ResetBall();
       this.ResetPlayers();
     }
   }
   Check_gol_player2() {
-    if ((Ball.X + 32 >= 639) && (Ball.Y + 32 >= 160 && Ball.Y <= 287)) {
+    if ((Ball.X + 64 >= 639) && (Ball.Y + 64 >= 160 && Ball.Y <= 287)) {
       Players.Player1[0].gols += 1;
       this.ResetBall();
       this.ResetPlayers();
@@ -137,17 +139,17 @@ class main {
   }
   DesacelateBall() {
     //desacelacao do vetores positos
-    if (ballSpeedX > 8) {
+    if (ballSpeedX > 20) {
       ballSpeedX--;
     }
-    if (ballSpeedY > 8) {
+    if (ballSpeedY > 20) {
       ballSpeedY--;
     }
     // desacelaracao dos vetores negativos
-    if (ballSpeedX < -8) {
+    if (ballSpeedX < -20) {
       ballSpeedX++;
     }
-    if (ballSpeedY < -8) {
+    if (ballSpeedY < -20) {
       ballSpeedY++;
     }
   }
@@ -278,8 +280,8 @@ class main {
       Players.Player2[0].X = 0;
     }
     //Bola
-    Sound.setVolume(100, 0);
-    Sound.play(sounds.ball_audio, 0);
+    Sound.play(ball_audio);
+    Timer.reset(timer);
   }
 
   draw() {
@@ -319,21 +321,21 @@ class main {
   }
   CollisionBall() {
     // Verificar colisão com as bordas da tela para a bola
-    if (Ball.X + 32 >= canvas.width || Ball.X <= 0) {
+    if (Ball.X + 64 >= canvas.width || Ball.X <= 0) {
       ballSpeedX = -ballSpeedX; // Inverter a direção no eixo X
     }
-    if (Ball.Y + 32 >= canvas.height || Ball.Y <= 0) {
+    if (Ball.Y + 64 >= canvas.height || Ball.Y <= 0) {
       ballSpeedY = -ballSpeedY; // Inverter a direçãeixo Yo no 
     }
 
     // Verificar colisão com os jogadores (paddles)
     if (// paddle right
-    Ball.X + 32 >= Players.Player2[0].X && Ball.X <= Players.Player2[0].X + 64 && Ball.Y + 32 >= Players.Player2[0].Y && Ball.Y <= Players.Player2[0].Y + 64
+    Ball.X + 64 >= Players.Player2[0].X && Ball.X <= Players.Player2[0].X + 100 && Ball.Y + 64 >= Players.Player2[0].Y && Ball.Y <= Players.Player2[0].Y + 100
     ) {
       ballSpeedY = this.normalizeValue(pd.ry, minOriginal, maxOriginal);
       ballSpeedX = this.normalizeValue(pd.rx, minOriginal, maxOriginal);
     }
-    if (Ball.X <= Players.Player1[0].X + 64 && Ball.X + 32 >= Players.Player1[0].X && Ball.Y + 32 >= Players.Player1[0].Y && Ball.Y <= Players.Player1[0].Y + 64) {
+    if (Ball.X <= Players.Player1[0].X + 100 && Ball.X + 64 >= Players.Player1[0].X && Ball.Y + 64 >= Players.Player1[0].Y && Ball.Y <= Players.Player1[0].Y + 100) {
       ballSpeedY = this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
       ballSpeedX = this.normalizeValue(pd2.rx, minOriginal, maxOriginal);
       if(selected == 1){
@@ -341,23 +343,25 @@ class main {
         ballSpeedX = -this.normalizeValue(Players.Player1[0].X, minOriginal, maxOriginal);
       }
     }
-    if (Ball.X + 20 > canvas.width || Ball.X + 15 < 0) {
+    if (Ball.X > canvas.width || Ball.X < 0) {
       ballSpeedX = -25;
     }
-    if (Ball.Y + 20 > canvas.height || Ball.Y + 15 < 0) {
+    if (Ball.Y > canvas.height || Ball.Y < 0) {
       ballSpeedY = -25;
     }
     if(selected == 1){
-      if (Players.Player1[0].Y + 64 / 2 < Ball.Y) {
-        Players.Player1[0].Y += 10;  // Ajuste a velocidade da CPU aqui (atualmente 3 pixels por frame)
+      if (Players.Player1[0].Y + 100 / 2 < Ball.Y) {
+        Players.Player1[0].Y += 10;  // Ajuste a velocidade da CPU aqui
       } else {
-        Players.Player1[0].Y -= 10;  // Ajuste a velocidade da CPU aqui (atualmente 3 pixels por frame)
+        Players.Player1[0].Y -= 10;  // Ajuste a velocidade da CPU aqui 
       }
-      if (Players.Player1[0].X + 64 / 2 < Ball.Y) {
-        Players.Player1[0].X += 10;  // Ajuste a velocidade da CPU aqui (atualmente 3 pixels por frame)
+      
+      if (Players.Player1[0].X + 100 / 2 < Ball.Y){
+        Players.Player1[0].X += 10;  // Ajuste a velocidade da CPU aqui 
       } else {
-        Players.Player1[0].X -= 10;  // Ajuste a velocidade da CPU aqui (atualmente 3 pixels por frame)
+        Players.Player1[0].X -= 10;  // Ajuste a velocidade da CPU aqui 
       }
+      
     }
   }
 
@@ -389,4 +393,5 @@ os.setInterval(() => {
   Game.SetScreen();
   Screen.waitVblankStart();
   Screen.flip();
+  
 }, 0);
