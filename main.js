@@ -10,13 +10,11 @@ Sound.setVolume(100,0);
 
 let sounds={
   ball_audio: Sound.load("assets/sound/ball_to_wall.adp"),
-  paddle_audio: Sound.load("assets/sound/ball_paddle.adp"),
   thema: Sound.load("assets/sound/theme.adp"),
   youlose: Sound.load("assets/sound/youloser.adp"),
   winner: Sound.load("assets/sound/youwin.adp"),
   trobeta: Sound.load("assets/sound/snd09.adp")
-}
-
+};
 
 const colors = {
   Black: Color.new(0, 0, 0),
@@ -45,8 +43,7 @@ const GameImage = {
   blue: new Image("assets/game/blue_paddle.png"),
   winner: new Image("assets/game/result/result_text_youwin.png"),
   loser: new Image("assets/game/result/result_text_youlose.png"),
-  nums_red: new Image(`assets/num/num_airhockey_${Players.Player2[0].gols}.png`),
-  nums_blue: new Image(`assets/num/num_blue_${Players.Player1[0].gols}.png`)
+  
 };
 
 const Black = Color.new(255, 255, 255);
@@ -56,7 +53,7 @@ var screen = 0;
 
 
 // variaveis do jogo
-var Ball = { X: 304, Y: 208};
+var Ball = { X: 285, Y: 190};
 // eixo anolosico da maxinha
 var minOriginal = -127;
 var maxOriginal = 128;
@@ -64,10 +61,13 @@ let new_pad = Pads.get();
 let old_pad = new_pad;
 let pd = Pads.get();
 let pd2 = Pads.get();
-var velocidade = 10;
+var velocidade = 8;
 var ballSpeedX = 5;
 var ballSpeedY = 5;
-
+let Nums = {
+  nums_red : new Image("assets/num/num_airhockey_"+Players.Player2[0].gols+".png"),
+  nums_blue : new Image( "assets/num/num_blue_"+Players.Player1[0].gols+".png")
+}
 var seta = {
   x: 388,
   y: 266,
@@ -82,7 +82,6 @@ var selected = 0;
 
 
 class main {
-  
   SetScreen() {
     if (screen == 0) {
       this.Menu();
@@ -94,6 +93,7 @@ class main {
       this.Credits();
     }
   }
+  
   ResetPlayers(){
     Players.Player1[0].X = 569;
     Players.Player1[0].Y = 195;
@@ -131,33 +131,41 @@ class main {
       seta.y = seta.slot0[0].y;
     }
   }
-  Check_gol_player1() {
+  Check_gol() {
     if ((Ball.X <= 1) && (Ball.Y + 64 >= 160 && Ball.Y <= 287)) {
+      Sound.play(sounds.trobeta);
       Players.Player2[0].gols += 1;
       this.ResetBall();
       this.ResetPlayers();
+      Nums.nums_red = new Image("assets/num/num_airhockey_"+Players.Player2[0].gols+".png");
+      Nums.nums_blue = new Image( "assets/num/num_blue_"+Players.Player1[0].gols+".png");
+      
+      
     }
-  }
-  Check_gol_player2() {
     if ((Ball.X + 64 >= 639) && (Ball.Y + 64 >= 160 && Ball.Y <= 287)) {
+      Sound.play(sounds.trobeta);
       Players.Player1[0].gols += 1;
       this.ResetBall();
       this.ResetPlayers();
-    }
+      Nums.nums_red = new Image("assets/num/num_airhockey_"+Players.Player2[0].gols+".png");
+      Nums.nums_blue = new Image( "assets/num/num_blue_"+Players.Player1[0].gols+".png");
+    
   }
+  }
+  
   DesacelateBall() {
     //desacelacao do vetores positos
-    if (ballSpeedX > 20) {
+    if (ballSpeedX > 8) {
       ballSpeedX--;
     }
-    if (ballSpeedY > 20) {
+    if (ballSpeedY > 8) {
       ballSpeedY--;
     }
     // desacelaracao dos vetores negativos
-    if (ballSpeedX < -20) {
+    if (ballSpeedX < -8) {
       ballSpeedX++;
     }
-    if (ballSpeedY < -20) {
+    if (ballSpeedY < -8) {
       ballSpeedY++;
     }
   }
@@ -166,10 +174,10 @@ class main {
   ResetBall(){
     ballSpeedX = 0;
     ballSpeedY = 0;
-    Ball.X = 304;
-    Ball.Y = 208;
+    Ball.X = 285;
+    Ball.Y = 190;
   }
-  normalizeValue(rx, minOriginal, maxOriginal, minNew = 1, maxNew = 8) {
+  normalizeValue(rx, minOriginal, maxOriginal, minNew = 1, maxNew = 20) {
     if (rx < 0) {
       return -(minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal));
     } else if(rx > 0){
@@ -179,12 +187,7 @@ class main {
     }
   }
   Credits(){
-    for ( var c = 448; c > 0; c--){
-    
-    font.print(200,200, "Table Hockey Alex-DevGamer Athena Env Daniel Santos");
-    };
     screen = 0;
-    
   }
   Menu() {
     old_pad = new_pad;
@@ -211,7 +214,7 @@ class main {
     if (Pads.check(new_pad, Pads.TRIANGLE) && !Pads.check(old_pad, Pads.TRIANGLE)){
       screen = 0;
     }
-
+    Sound.play(sounds.thema);
     MenuImage.menu.draw(0, 0);
     MenuImage.play.draw(224, 254);
     MenuImage.settings.draw(224, 310);
@@ -219,88 +222,43 @@ class main {
     MenuImage.seta.draw(seta.x, seta.y);
   }
 
-  Movep1() {
+  Move_paddles() {
     pd = Pads.get(0);
-    if (pd.rx < -25) {
+    if (pd.rx < -10) {
       Players.Player1[0].X = Players.Player1[0].X - velocidade;
     }
-    if (pd.rx > 25) {
+    if (pd.rx > 10) {
       Players.Player1[0].X = Players.Player1[0].X + velocidade;
     }
-    if (pd.ry > 25) {
+    if (pd.ry > 50) {
       Players.Player1[0].Y = Players.Player1[0].Y + velocidade;
     }
-    if (pd.ry < -25) {
+    if (pd.ry < -50) {
       Players.Player1[0].Y = Players.Player1[0].Y - velocidade;
     }
-  }
-
-  Movep2() {
+    // move paddle 1
     pd2 = Pads.get();
-    if (pd2.lx < -25) {
+    if (pd2.lx < -10) {
       Players.Player2[0].X = Players.Player2[0].X - velocidade;
     }
-    if (pd2.lx > 25) {
+    if (pd2.lx > 10) {
       Players.Player2[0].X = Players.Player2[0].X + velocidade;
     }
-    if (pd2.ly > 25) {
+    if (pd2.ly > 50) {
       Players.Player2[0].Y = Players.Player2[0].Y + velocidade;
     }
-    if (pd2.ly < -25) {
+    if (pd2.ly < -50) {
       Players.Player2[0].Y = Players.Player2[0].Y - velocidade;
     }
-  }
-
-  ColisionWall() {
-    //player1
-    if (Players.Player1[0].X < 320) {
-      //meio
-      Players.Player1[0].X = 320;
-    }
-    if (Players.Player1[0].Y > 384) {
-      //baixo
-      Players.Player1[0].Y = 384;
-    }
-    if (Players.Player1[0].Y < 0) {
-      //cima
-      Players.Player1[0].Y = 0;
-    }
-    if (Players.Player1[0].X > 576) {
-      //fim direita
-      Players.Player1[0].X = 576;
-    }
-
-    //player 2
-    if (Players.Player2[0].X > 256) {
-      //meio
-      Players.Player2[0].X = 256;
-    }
-    if (Players.Player2[0].Y > 384) {
-      //baixo
-      Players.Player2[0].Y = 384;
-    }
-    if (Players.Player2[0].Y < 0) {
-      //cima
-      Players.Player2[0].Y = 0;
-    }
-    if (Players.Player2[0].X < 0) {
-      //fim esquerda
-      Players.Player2[0].X = 0;
-    }
-    //Bola
-    //Sound.play(ball_audio);
     
   }
-
   draw() {
     GameImage.bg.draw(0, 0);
     GameImage.ball.draw(Ball.X, Ball.Y);
     GameImage.red.draw(Players.Player1[0].X, Players.Player1[0].Y);
     GameImage.blue.draw(Players.Player2[0].X, Players.Player2[0].Y);
-    GameImage.nums_blue.draw(250,10);
-    GameImage.nums_red.draw(330,10);
-    font.print(100,100, Players.Player1[0].gols);
-    
+    Nums.nums_blue.draw(250,10);
+    Nums.nums_red.draw(330,10);
   }
 
   start() {
@@ -311,55 +269,80 @@ class main {
       screen = 0;
     }
   }
-  WinnerPlay1(){
+  WinnerPlayer(){
     if(Players.Player1[0].gols == 10){
-      font.print(210, 220, "Red WINNER");
-      this.ResetPlayers();
-      this.ResetBall();
+      GameImage.loser.draw(210, 220);
+      Sound.play(sounds.winner);
       Players.Player1[0].gols = 0;
-  }
-  }
-  WinnerPlay2(){
-    if(Players.Player2[0].gols == 10){
-      font.print(210, 220, "Blue WINNER");
-      this.ResetPlayers(), 3000;
-      this.ResetBall();
+      screen = 0;
+    }else if(Players.Player2[0].gols == 10){
+      GameImage.winner.draw(210, 220);
+      Sound.play(sounds.winner);
       Players.Player2[0].gols = 0;
-  }
+      screen = 0;
+    }
   }
   CollisionBall() {
     // Verificar colisão com as bordas da tela para a bola
     if (Ball.X + 64 >= canvas.width || Ball.X <= 0) {
       ballSpeedX = -ballSpeedX; // Inverter a direção no eixo X
-      //Sound.play(sounds.ball_audio);
+      Sound.play(sounds.ball_audio);
     }
     if (Ball.Y + 64 >= canvas.height || Ball.Y <= 0) {
       ballSpeedY = -ballSpeedY; // Inverter a direçãeixo Yo no
-      //Sound.play(sounds.ball_audio);
+      Sound.play(sounds.ball_audio);
+    }
+    //Colisão dos paddle com a parede
+    if (Players.Player1[0].X < 320) {
+      //meio
+      Players.Player1[0].X = 320;
+    }
+    if (Players.Player1[0].Y > 348) {
+      //baixo
+      Players.Player1[0].Y = 348;
+    }
+    if (Players.Player1[0].Y < 0) {
+      //cima
+      Players.Player1[0].Y = 0;
+    }
+    if (Players.Player1[0].X > 540) {
+      //fim direita
+      Players.Player1[0].X = 540;
     }
 
+    //player 2
+    if (Players.Player2[0].X > 220) {
+      //meio
+      Players.Player2[0].X = 220;
+    }
+    if (Players.Player2[0].Y > 348) {
+      //baixo
+      Players.Player2[0].Y = 348;
+    }
+    if (Players.Player2[0].Y < 0) {
+      //cima
+      Players.Player2[0].Y = 0;
+    }
+    if (Players.Player2[0].X < 0) {
+      //fim esquerda
+      Players.Player2[0].X = 0;
+    }
     // Verificar colisão com os jogadores (paddles)
-    if (// paddle right
+    if (// paddle esq
     Ball.X + 64 >= Players.Player2[0].X && Ball.X <= Players.Player2[0].X + 100 && Ball.Y + 64 >= Players.Player2[0].Y && Ball.Y <= Players.Player2[0].Y + 100
     ) {
-      //Sound.play(sounds.paddle_audio);
+      Sound.play(sounds.ball_audio);
       ballSpeedY = this.normalizeValue(pd.ry, minOriginal, maxOriginal);
       ballSpeedX = this.normalizeValue(pd.rx, minOriginal, maxOriginal);
     }
     if (Ball.X <= Players.Player1[0].X + 100 && Ball.X + 64 >= Players.Player1[0].X && Ball.Y + 64 >= Players.Player1[0].Y && Ball.Y <= Players.Player1[0].Y + 100) {
+      Sound.play(sounds.ball_audio);
       ballSpeedY = this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
       ballSpeedX = this.normalizeValue(pd2.rx, minOriginal, maxOriginal);
       if(selected == 1){
-        //Sound.play(sounds.paddle_audio);
         ballSpeedY = this.normalizeValue(Players.Player1[0].Y, minOriginal, maxOriginal);
-        ballSpeedX = -this.normalizeValue(Players.Player1[0].X, minOriginal, maxOriginal);
+        ballSpeedX = this.normalizeValue(Players.Player1[0].X, minOriginal, maxOriginal);
       }
-    }
-    if (Ball.X > canvas.width || Ball.X < 0) {
-      ballSpeedX = -25;
-    }
-    if (Ball.Y > canvas.height || Ball.Y < 0) {
-      ballSpeedY = -25;
     }
     if(selected == 1){
       if (Players.Player1[0].Y + 100 / 2 < Ball.Y) {
@@ -368,7 +351,7 @@ class main {
         Players.Player1[0].Y -= 10;  // Ajuste a velocidade da CPU aqui 
       }
       
-      if (Players.Player1[0].X + 100 / 2 < Ball.Y){
+      if (Players.Player2[0].X / 2 < Ball.X){
         Players.Player1[0].X += 10;  // Ajuste a velocidade da CPU aqui 
       } else {
         Players.Player1[0].X -= 10;  // Ajuste a velocidade da CPU aqui 
@@ -385,17 +368,14 @@ class main {
 
   Play() {
     this.start();
-    this.Movep1(); // paddle right
-    this.Movep2(); // paddle left
+    this.Move_paddles();
     this.MoveBall();  // Adicionando a movimentação da bola
     this.CollisionBall();
-    this.ColisionWall();
     this.draw();
     this.DesacelateBall();
-    this.Check_gol_player1();
-    this.Check_gol_player2();
-    this.WinnerPlay1();
-    this.WinnerPlay2();
+    this.Check_gol();
+    this.WinnerPlayer();
+    
   }
 }
 
