@@ -25,10 +25,7 @@ const colors = {
 
 
 const MenuImage = {
-  menu: new Image("assets/mainmenu/mainmenu_img_topbg.png"),
-  play: new Image("assets/mainmenu/mainmenu_btn_2player.png"),
-  settings: new Image("assets/mainmenu/mainmenu_btn_vscpu.png"),
-  credits: new Image("assets/mainmenu/option_btn_gdpr.png"),
+  menu: new Image("assets/mainmenu/mainmenu.png"),
   seta: new Image("assets/mainmenu/Check.png")
 };
 var Players = {
@@ -37,7 +34,7 @@ var Players = {
 };
 
 const GameImage = {
-  bg: new Image("assets/game/campo.png"),
+  bg: new Image("assets/game/arena.png"),
   ball: new Image("assets/game/ball.png"),
   red: new Image("assets/game/red_paddle.png"),
   blue: new Image("assets/game/blue_paddle.png"),
@@ -65,18 +62,15 @@ var velocidade = 8;
 var ballSpeedX = 5;
 var ballSpeedY = 5;
 let Nums = {
-  nums_red : new Image("assets/num/num_airhockey_"+Players.Player2[0].gols+".png"),
+  nums_red : new Image("assets/num/num_blue_"+Players.Player2[0].gols+".png"),
   nums_blue : new Image( "assets/num/num_blue_"+Players.Player1[0].gols+".png")
 }
-var seta = {
-  x: 388,
-  y: 266,
-  slot0: [{ x: 388, y: 266 }],
-  slot1: [{ x: 388, y: 321 }],
-  slot2: [{ x: 388, y: 377 }]
-};
-
-var Count = 3;
+var seta = 
+  [{ x: 388, y: 317 },
+  { x: 388, y: 357 },
+  { x: 388, y: 397 }];
+let seta_pos = seta[0] 
+var Count = 0;
 var selected = 0;
 
 
@@ -100,44 +94,35 @@ class main {
     Players.Player2[0].X = 13;
     Players.Player2[0].Y = 195;
   }
+
   MoveSetaUp() {
-    if (selected == 0) {
+    if (Count > 0){
+    seta_pos = seta[Count -= 1];
+    selected -= 1;
+    }else{
+      seta_pos = seta[2]
+      Count = 3;
       selected = 2;
-      seta.x = seta.slot2[0].x;
-      seta.y = seta.slot2[0].y;
-    } else if (selected == 1) {
-      selected = 0;
-      seta.x = seta.slot0[0].x;
-      seta.y = seta.slot0[0].y;
-    } else if (selected == 2) {
-      selected = 1;
-      seta.x = seta.slot1[0].x;
-      seta.y = seta.slot1[0].y;
+    }
+  }
+  MoveSetaDown() {
+    if (Count < 4){
+      seta_pos = seta[Count += 1]
+      selected += 1;
+    }else{
+    seta_pos = seta[0]
+    Count = 0;
+    selected = 0;
     }
   }
 
-  MoveSetaDown() {
-    if (selected == 0) {
-      selected = 1;
-      seta.x = seta.slot1[0].x;
-      seta.y = seta.slot1[0].y;
-    } else if (selected == 1) {
-      selected = 2;
-      seta.x = seta.slot2[0].x;
-      seta.y = seta.slot2[0].y;
-    } else if (selected == 2) {
-      selected = 0;
-      seta.x = seta.slot0[0].x;
-      seta.y = seta.slot0[0].y;
-    }
-  }
   Check_gol() {
     if ((Ball.X <= 1) && (Ball.Y + 64 >= 160 && Ball.Y <= 287)) {
       Sound.play(sounds.trobeta);
       Players.Player2[0].gols += 1;
       this.ResetBall();
       this.ResetPlayers();
-      Nums.nums_red = new Image("assets/num/num_airhockey_"+Players.Player2[0].gols+".png");
+      Nums.nums_red = new Image("assets/num/num_blue_"+Players.Player2[0].gols+".png");
       Nums.nums_blue = new Image( "assets/num/num_blue_"+Players.Player1[0].gols+".png");
       
       
@@ -147,14 +132,14 @@ class main {
       Players.Player1[0].gols += 1;
       this.ResetBall();
       this.ResetPlayers();
-      Nums.nums_red = new Image("assets/num/num_airhockey_"+Players.Player2[0].gols+".png");
+      Nums.nums_red = new Image("assets/num/num_blue_"+Players.Player2[0].gols+".png");
       Nums.nums_blue = new Image( "assets/num/num_blue_"+Players.Player1[0].gols+".png");
     
   }
   }
   
   DesacelateBall() {
-    //desacelacao do vetores positos
+    //desacelacao do vetores positivos
     if (ballSpeedX > 8) {
       ballSpeedX--;
     }
@@ -211,15 +196,9 @@ class main {
       screen = 2;
       
     }
-    if (Pads.check(new_pad, Pads.TRIANGLE) && !Pads.check(old_pad, Pads.TRIANGLE)){
-      screen = 0;
-    }
     Sound.play(sounds.thema);
     MenuImage.menu.draw(0, 0);
-    MenuImage.play.draw(224, 254);
-    MenuImage.settings.draw(224, 310);
-    MenuImage.credits.draw(224, 367);
-    MenuImage.seta.draw(seta.x, seta.y);
+    MenuImage.seta.draw(seta_pos.x, seta_pos.y);
   }
 
   Move_paddles() {
@@ -257,8 +236,8 @@ class main {
     GameImage.ball.draw(Ball.X, Ball.Y);
     GameImage.red.draw(Players.Player1[0].X, Players.Player1[0].Y);
     GameImage.blue.draw(Players.Player2[0].X, Players.Player2[0].Y);
-    Nums.nums_blue.draw(250,10);
-    Nums.nums_red.draw(330,10);
+    Nums.nums_blue.draw(272,25);
+    Nums.nums_red.draw(330,25);
   }
 
   start() {
@@ -274,11 +253,13 @@ class main {
       GameImage.loser.draw(210, 220);
       Sound.play(sounds.winner);
       Players.Player1[0].gols = 0;
+      Players.Player2[0].gols = 0;
       screen = 0;
     }else if(Players.Player2[0].gols == 10){
       GameImage.winner.draw(210, 220);
       Sound.play(sounds.winner);
       Players.Player2[0].gols = 0;
+      Players.Player1[0].gols = 0;
       screen = 0;
     }
   }
@@ -351,18 +332,19 @@ class main {
         Players.Player1[0].Y -= 10;  // Ajuste a velocidade da CPU aqui 
       }
       
-      if (Players.Player2[0].X / 2 < Ball.X){
+      if (Players.Player2[0].X / 2 < Ball.Y){
         Players.Player1[0].X += 10;  // Ajuste a velocidade da CPU aqui 
       } else {
         Players.Player1[0].X -= 10;  // Ajuste a velocidade da CPU aqui 
       }
       
     }
+    
   }
 
   MoveBall() {
-    Ball.X += ballSpeedX;
-    Ball.Y += ballSpeedY;
+    Ball.X -= ballSpeedX;
+    Ball.Y -= ballSpeedY;
 
   }
 
