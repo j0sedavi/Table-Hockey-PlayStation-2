@@ -365,14 +365,14 @@ class main {
     // Verificar colisão com as bordas da tela para a bola
     if (Ball.X + 64 >= canvas.width || Ball.X <= 0) {
       ballSpeedX = -ballSpeedX; // Inverter a direção no eixo X
-      createParticle(100, 100, 2, 2);
-      createParticle(200, 200, -1, 1);
+      this.createParticle(100, 100, 2, 2);
+      this.createParticle(200, 200, -1, 1);
       
     }
     if (Ball.Y + 64 >= canvas.height || Ball.Y <= 0) {
       ballSpeedY = -ballSpeedY; // Inverter a direçãeixo Yo no
-      createParticle(100, 100, 2, 2);
-      createParticle(200, 200, -1, 1);
+      this.createParticle(ball.x, ball.y, 30, 30);
+      this.createParticle(ball.x, ball.y, -30, 30);
     }
     //Colisão dos paddle com a parede
     if (Players.Player1[0].X < 320) {
@@ -466,6 +466,7 @@ const Game = new main();
 os.setInterval(() => {
   Screen.clear();
   Game.SetScreen();
+  Game.drawParticles();
   Screen.waitVblankStart();
   Screen.flip();
   
