@@ -19,9 +19,6 @@ const colors = {
   BlueDark: Color.new(23, 27, 255),
   Blue: Color.new(48, 92, 255)
 };
-
-let particles = [];
-let imagePart = new Image("assets/effect/light_obstacle.png");
 const MenuImage = {
   menu: new Image("assets/mainmenu/mainmenu.png"),
   menu_pause: new Image("assets/mainmenu/menu_pause.png"),
@@ -51,35 +48,36 @@ var screen = 0;
 
 // variaveis do jogo
 var Ball = { X: 285, Y: 190};
-// eixo anolosico da maxinha
-var minOriginal = 0;
-var maxOriginal = 640;
 let new_pad = Pads.get();
 let old_pad = new_pad;
 let pd = Pads.get();
 let pd2 = Pads.get();
 var velocidade = 8;
-var ballSpeedX = 2;
-var ballSpeedY = 2;
+var ballSpeedX = 8;
+var ballSpeedY = 8;
+var speed_cpu = 4;
+
 let Nums = {
   nums_red : new Image("assets/num/num_blue_"+Players.Player2[0].gols+".png"),
   nums_blue : new Image( "assets/num/num_blue_"+Players.Player1[0].gols+".png")
 }
 var op_seta = 
-  [{ x: 388, y: 317 },
-  { x: 388, y: 357 },
-  { x: 388, y: 397 },
-  { x: 388, y: 397 },
-  { x: 388, y: 397 }]
+  [{ x: 388, y: 135 },
+  { x: 388, y: 187 },
+  { x: 388, y: 243 },
+  { x: 388, y: 295 },
+  { x: 388, y: 347 }];
 var seta = 
   [{ x: 388, y: 317 },
   { x: 388, y: 357 },
   { x: 388, y: 397 }];
 
-let seta_pos = seta[0] 
+var seta_pos = seta[0]
+var seta_option_pos = op_seta[0];
 var Count = 0;
 var selected = 0;
 var difficulty = 0;
+var c = 0;
 
 
 class main {
@@ -92,27 +90,14 @@ class main {
       this.Play();
     }
     if (screen == 2){
-      this.menu_opçoes();
+      this.menu_pause();
+      
     }
     if (screen == 3){
-      this.menu_pause();
+      this.menu_opçoes();
     }
   }
-  createParticle(x, y, dx, dy, imagePart) {
-    particles.push({ x, y, dx, dy, imagePart });
-  }
-  updateParticles() {
-    for (let i = 0; i < particles.length; i++) {
-      particles[i].x += particles[i].dx;
-      particles[i].y += particles[i].dy;
-    }
-  }
-  drawParticles() {
-    for (let i = 0; i < particles.length; i++) {
-      const { x, y, imagePart } = particles[i];
-      imagePart.draw(x,y);
-    }
-  }
+ 
   ResetPlayers(){
     Players.Player1[0].X = 569;
     Players.Player1[0].Y = 195;
@@ -124,26 +109,16 @@ class main {
     if (Count > 0){
     seta_pos = seta[Count -= 1];
     selected -= 1;
-    }else{
-      seta_pos = seta[2]
-      Count = 3;
-      selected = 2;
     }
   }
   MoveSetaDown() {
     if (Count < 4){
       seta_pos = seta[Count += 1]
       selected += 1;
-    }else{
-    seta_pos = seta[0]
-    Count = 0;
-    selected = 0;
-    }
   }
-
+  }
   Check_gol() {
     if ((Ball.X <= 1) && (Ball.Y + 64 >= 160 && Ball.Y <= 287)) {
-      Sound.play(sounds.trobeta);
       Players.Player2[0].gols += 1;
       this.ResetBall();
       this.ResetPlayers();
@@ -153,7 +128,6 @@ class main {
       
     }
     if ((Ball.X + 64 >= 639) && (Ball.Y + 64 >= 160 && Ball.Y <= 287)) {
-      Sound.play(sounds.trobeta);
       Players.Player1[0].gols += 1;
       this.ResetBall();
       this.ResetPlayers();
@@ -162,7 +136,9 @@ class main {
     
   }
   }
-  
+  normalize_value(add_value){
+    return ((add_value - -127) / (128 - -127) * (10 - -10) + -10);
+  }
   DesacelateBall() {
     //desacelacao do vetores positivos
     if (ballSpeedX > 8) {
@@ -187,18 +163,6 @@ class main {
     Ball.X = 285;
     Ball.Y = 190;
   }
-  normalizeValue(rx, minOriginal, maxOriginal, minNew = 1, maxNew = 20) {
-    if (rx < 0) {
-      return -(minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal));
-    } else if(rx > 0){
-      return minNew + ((rx - minOriginal) * (maxNew - minNew)) / (maxOriginal - minOriginal);
-    }else{
-      return 0;
-    }
-  }
-  Opcoes(){
-    screen = 2;
-  }
   Menu() {
     old_pad = new_pad;
     new_pad = Pads.get();
@@ -218,7 +182,7 @@ class main {
       screen = 1;
     }
     if (Pads.check(new_pad, Pads.CROSS) && !Pads.check(old_pad, Pads.CROSS) && selected == 2) {
-      screen = 2;
+      screen = 3;
       
     }
     Sound.play(sounds.thema);
@@ -227,11 +191,10 @@ class main {
   }
 
   menu_pause(){
-    MenuImage.menu_pause.draw(0,0);
-    MenuImage.seta.draw(seta_pos.x,seta_pos.y);
     old_pad = new_pad;
     new_pad = Pads.get();
-
+    MenuImage.menu_pause.draw(0,0);
+    MenuImage.seta.draw(seta_pos.x,seta_pos.y);
     if (Pads.check(new_pad, Pads.UP) && !Pads.check(old_pad, Pads.UP)) {
       this.MoveSetaUp();
     }
@@ -254,47 +217,41 @@ class main {
       screen = 0;
       
     }
-
-    
   }
 
   menu_opçoes(){
-    atual = 0;
-    MenuImage.menu_opçoes.draw(0,0);
-    MenuImage.hand_difficulty.draw(200,200);
-    difficulty = 0;
-    let pos_seta = op_seta[0];
-    MenuImage.seta.draw(pos_seta.x,pos_seta.y);
     old_pad = new_pad;
     new_pad = Pads.get();
-
     if (Pads.check(new_pad, Pads.UP) && !Pads.check(old_pad, Pads.UP)) {
-      if (atual > 0){
-        pos_seta = op_seta[atual -= 1];
-      }else{
-        pos_seta = op_seta[4];
-        difficulty = 4;
-        atual =0;
+      if (c > 0){
+        seta_option_pos = op_seta[c -= 1];
       }
     }
     if (Pads.check(new_pad, Pads.DOWN) && !Pads.check(old_pad, Pads.DOWN)) {
-      if (atual < 5){
-        pos_seta = op_seta[atual += 1];
-      }else{
-        pos_seta = op_seta[0];
-        difficulty = 0;
-        atual
+      if (c < 4){
+        seta_option_pos = op_seta[c += 1];
+      }
+      
+    }
+    if (Pads.check(new_pad, Pads.CROSS) && !Pads.check(old_pad, Pads.CROSS)) {
+      if (c >= 0 && c <= 3){
+        difficulty = c;
+      }
+      if (c == 4){
+        screen = 0;
       }
     }
-    
+    MenuImage.menu_opçoes.draw(0,0);
+    MenuImage.hand_difficulty.draw(423, op_seta[difficulty].y);
+    MenuImage.seta.draw(seta_option_pos.x, seta_option_pos.y);
   }
 
   Move_paddles() {
     pd = Pads.get(0);
-    if (pd.rx < -10) {
+    if (pd.rx < -50) {
       Players.Player1[0].X = Players.Player1[0].X - velocidade;
     }
-    if (pd.rx > 10) {
+    if (pd.rx > 50) {
       Players.Player1[0].X = Players.Player1[0].X + velocidade;
     }
     if (pd.ry > 50) {
@@ -305,10 +262,10 @@ class main {
     }
     // move paddle 1
     pd2 = Pads.get();
-    if (pd2.lx < -10) {
+    if (pd2.lx < -50) {
       Players.Player2[0].X = Players.Player2[0].X - velocidade;
     }
-    if (pd2.lx > 10) {
+    if (pd2.lx > 50) {
       Players.Player2[0].X = Players.Player2[0].X + velocidade;
     }
     if (pd2.ly > 50) {
@@ -331,48 +288,35 @@ class main {
 
   start() {
     old_pad = new_pad;
-    new_pad = Pads.get(0);
+    new_pad = Pads.get();
 
-    if (Pads.check(new_pad, Pads.START) && !Pads.check(old_pad, Pads.START) && selected == 0) {
-     screen = 3;
+    if (Pads.check(new_pad, Pads.START) && !Pads.check(old_pad, Pads.START) && screen == 1) {
+     screen = 2;
     }
-    if (Pads.check(new_pad, Pads.START) && !Pads.check(old_pad, Pads.START) && selected == 1) {
-      screen = 3;
-     }
   }
   WinnerPlayer(){
     if(Players.Player1[0].gols == 10){
       GameImage.loser.draw(210, 220);
-      Sound.play(sounds.winner);
+      
       Players.Player1[0].gols = 0;
       Players.Player2[0].gols = 0;
       screen = 0;
     }else if(Players.Player2[0].gols == 10){
       GameImage.winner.draw(210, 220);
-      Sound.play(sounds.winner);
+      
       Players.Player2[0].gols = 0;
       Players.Player1[0].gols = 0;
       screen = 0;
     }
   }
   CollisionBall() {
-    if (Ball.X + 70 > canvas.width || Ball.X < -2) {
-      this.ResetBall();
-    }
-    if (Ball.Y + 70 > canvas.height || Ball.Y < -2) {
-      this.ResetBall();
-    }
+    
     // Verificar colisão com as bordas da tela para a bola
-    if (Ball.X + 64 >= canvas.width || Ball.X <= 0) {
+    if (Ball.X + 64 >= 640 || Ball.X <= 0) {
       ballSpeedX = -ballSpeedX; // Inverter a direção no eixo X
-      this.createParticle(100, 100, 2, 2);
-      this.createParticle(200, 200, -1, 1);
-      
     }
-    if (Ball.Y + 64 >= canvas.height || Ball.Y <= 0) {
+    if (Ball.Y + 64 >= 448 || Ball.Y <= 0) {
       ballSpeedY = -ballSpeedY; // Inverter a direçãeixo Yo no
-      this.createParticle(ball.x, ball.y, 30, 30);
-      this.createParticle(ball.x, ball.y, -30, 30);
     }
     //Colisão dos paddle com a parede
     if (Players.Player1[0].X < 320) {
@@ -413,28 +357,28 @@ class main {
     if (// paddle esq
     Ball.X + 64 >= Players.Player2[0].X && Ball.X <= Players.Player2[0].X + 100 && Ball.Y + 64 >= Players.Player2[0].Y && Ball.Y <= Players.Player2[0].Y + 100
     ) {
-      ballSpeedY = this.normalizeValue(pd.ry, minOriginal, maxOriginal);
-      ballSpeedX = this.normalizeValue(pd.rx, minOriginal, maxOriginal);
+      ballSpeedY = this.normalize_value(pd.ry);
+      ballSpeedX = this.normalize_value(pd.rx);
     }
     if (Ball.X <= Players.Player1[0].X + 100 && Ball.X + 64 >= Players.Player1[0].X && Ball.Y + 64 >= Players.Player1[0].Y && Ball.Y <= Players.Player1[0].Y + 100) {
-      ballSpeedY = this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
-      ballSpeedX = this.normalizeValue(pd2.ry, minOriginal, maxOriginal);
+      ballSpeedY = -this.normalize_value(pd2.ry);
+      ballSpeedX = -this.normalize_value(pd2.rx);
       if(selected == 1){
-        ballSpeedY = this.normalizeValue(Players.Player1[0].Y, minOriginal, maxOriginal);
-        ballSpeedX = this.normalizeValue(Players.Player1[0].X, minOriginal, maxOriginal);
+        ballSpeedY = Players.Player1[0].Y
+        ballSpeedX = Players.Player1[0].X
       }
     }
     if(selected == 1){
       if (Players.Player1[0].Y + 100 / 2 < Ball.Y) {
-        Players.Player1[0].Y += 10;  // Ajuste a velocidade da CPU aqui
+        Players.Player1[0].Y += speed_cpu;  // Ajuste a velocidade da CPU aqui
       } else {
-        Players.Player1[0].Y -= 10;  // Ajuste a velocidade da CPU aqui 
+        Players.Player1[0].Y -= speed_cpu;  // Ajuste a velocidade da CPU aqui 
       }
       
       if (Players.Player2[0].X / 2 < Ball.Y){
-        Players.Player1[0].X += 10;  // Ajuste a velocidade da CPU aqui 
+        Players.Player1[0].X += speed_cpu;  // Ajuste a velocidade da CPU aqui 
       } else {
-        Players.Player1[0].X -= 10;  // Ajuste a velocidade da CPU aqui 
+        Players.Player1[0].X -= speed_cpu;  // Ajuste a velocidade da CPU aqui 
       }
       
     }
@@ -448,6 +392,7 @@ class main {
   }
 
   Play() {
+    this.start();
     this.Move_paddles();
     this.MoveBall();  // Adicionando a movimentação da bola
     this.CollisionBall();
@@ -455,10 +400,6 @@ class main {
     this.DesacelateBall();
     this.Check_gol();
     this.WinnerPlayer();
-    this.updateParticles();
-    this.drawParticles();
-    
-    
   }
 }
 
@@ -466,7 +407,6 @@ const Game = new main();
 os.setInterval(() => {
   Screen.clear();
   Game.SetScreen();
-  Game.drawParticles();
   Screen.waitVblankStart();
   Screen.flip();
   
