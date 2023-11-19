@@ -9,7 +9,7 @@ Sound.setVolume(100);
 Sound.setVolume(100,0);
 
 let sounds={
-  ball_audio: Sound.load("assets/sound/snd13.wav")
+  ball_audio: Sound.load("assets/sound/snd13.ogg")
 };
 
   
@@ -47,7 +47,9 @@ var screen = 0;
 
 
 // variaveis do jogo
-var Ball = { X: 285, Y: 190};
+var Ball = { X: 285, Y: 190,dx: 3,
+  dy: 3,
+  radius: 10,};
 let new_pad = Pads.get();
 let old_pad = new_pad;
 let pd = Pads.get();
@@ -55,9 +57,10 @@ let pd2 = Pads.get();
 var velocidade = 8;
 var ballSpeedX = 8;
 var ballSpeedY = 8;
-var speed_cpu = 4;
+var speed_cpu = 8;
 
 let Nums = {
+  particule: new Image("assets/effect/light_blue.png"),
   nums_red : new Image("assets/num/num_blue_"+Players.Player2[0].gols+".png"),
   nums_blue : new Image( "assets/num/num_blue_"+Players.Player1[0].gols+".png")
 }
@@ -79,7 +82,6 @@ var selected = 0;
 var difficulty = 0;
 var c = 0;
 
-
 class main {
   
   SetScreen() {
@@ -97,7 +99,7 @@ class main {
       this.menu_opçoes();
     }
   }
- 
+  
   ResetPlayers(){
     Players.Player1[0].X = 569;
     Players.Player1[0].Y = 195;
@@ -137,7 +139,7 @@ class main {
   }
   }
   normalize_value(add_value){
-    return ((add_value - -127) / (128 - -127) * (10 - -10) + -10);
+    return ((add_value - -127) / (128 - -127) * (15 - -15) + -15);
   }
   DesacelateBall() {
     //desacelacao do vetores positivos
@@ -155,7 +157,17 @@ class main {
       ballSpeedY++;
     }
   }
-
+  adjuste_difficulty(){
+    if (difficulty == 0){
+      speed_cpu = 4;
+    }else if (difficulty == 1){
+      speed_cpu = 8;
+    }else if(difficulty == 2){
+      speed_cpu = 12;
+    }else if(difficulty == 3){
+      speed_cpu = 15;
+    }
+  }
   
   ResetBall(){
     ballSpeedX = 0;
@@ -180,6 +192,8 @@ class main {
     }
     if (Pads.check(new_pad, Pads.CROSS) && !Pads.check(old_pad, Pads.CROSS) && selected == 1) {
       screen = 1;
+      this.ResetBall();
+      this.adjuste_difficulty();
     }
     if (Pads.check(new_pad, Pads.CROSS) && !Pads.check(old_pad, Pads.CROSS) && selected == 2) {
       screen = 3;
@@ -247,31 +261,31 @@ class main {
   }
 
   Move_paddles() {
-    pd = Pads.get(0);
-    if (pd.rx < -50) {
+    pd = Pads.get();
+    if (pd.rx < -30) {
       Players.Player1[0].X = Players.Player1[0].X - velocidade;
     }
-    if (pd.rx > 50) {
+    if (pd.rx > 30) {
       Players.Player1[0].X = Players.Player1[0].X + velocidade;
     }
-    if (pd.ry > 50) {
+    if (pd.ry > 30) {
       Players.Player1[0].Y = Players.Player1[0].Y + velocidade;
     }
-    if (pd.ry < -50) {
+    if (pd.ry < -30) {
       Players.Player1[0].Y = Players.Player1[0].Y - velocidade;
     }
     // move paddle 1
     pd2 = Pads.get();
-    if (pd2.lx < -50) {
+    if (pd2.lx < -30) {
       Players.Player2[0].X = Players.Player2[0].X - velocidade;
     }
-    if (pd2.lx > 50) {
+    if (pd2.lx > 30) {
       Players.Player2[0].X = Players.Player2[0].X + velocidade;
     }
-    if (pd2.ly > 50) {
+    if (pd2.ly > 30) {
       Players.Player2[0].Y = Players.Player2[0].Y + velocidade;
     }
-    if (pd2.ly < -50) {
+    if (pd2.ly < -30) {
       Players.Player2[0].Y = Players.Player2[0].Y - velocidade;
     }
     
@@ -295,27 +309,28 @@ class main {
     }
   }
   WinnerPlayer(){
+    old_pad = new_pad;
+    new_pad = Pads.get();
     if(Players.Player1[0].gols == 10){
-      GameImage.loser.draw(210, 220);
-      
-      Players.Player1[0].gols = 0;
-      Players.Player2[0].gols = 0;
+      GameImage.loser.draw(((640 - 373)/2), ((448 - 83)/2));
+      if (Pads.check(new_pad, Pads.CROSS) && !Pads.check(old_pad, Pads.CROSS)){
       screen = 0;
+      }
     }else if(Players.Player2[0].gols == 10){
-      GameImage.winner.draw(210, 220);
-      
-      Players.Player2[0].gols = 0;
-      Players.Player1[0].gols = 0;
-      screen = 0;
+      GameImage.winner.draw(((640 - 402)/2), ((448 - 84)/2));
+      if (Pads.check(new_pad, Pads.CROSS) && !Pads.check(old_pad, Pads.CROSS)){
+        screen = 0;
+      }
     }
   }
   CollisionBall() {
-    
     // Verificar colisão com as bordas da tela para a bola
     if (Ball.X + 64 >= 640 || Ball.X <= 0) {
+      Sound.play(sounds.ball_audio,0);
       ballSpeedX = -ballSpeedX; // Inverter a direção no eixo X
     }
     if (Ball.Y + 64 >= 448 || Ball.Y <= 0) {
+      Sound.play(sounds.ball_audio,0);
       ballSpeedY = -ballSpeedY; // Inverter a direçãeixo Yo no
     }
     //Colisão dos paddle com a parede
@@ -359,26 +374,46 @@ class main {
     ) {
       ballSpeedY = this.normalize_value(pd.ry);
       ballSpeedX = this.normalize_value(pd.rx);
+      if(pd.ry == 0){
+        ballSpeedY = -ballSpeedY;
+        
+      }else if(pd.rx == 0){
+        ballSpeedX = -ballSpeedX
+      }
     }
     if (Ball.X <= Players.Player1[0].X + 100 && Ball.X + 64 >= Players.Player1[0].X && Ball.Y + 64 >= Players.Player1[0].Y && Ball.Y <= Players.Player1[0].Y + 100) {
       ballSpeedY = -this.normalize_value(pd2.ry);
       ballSpeedX = -this.normalize_value(pd2.rx);
+      if(pd2.ry == 0){
+        ballSpeedY = -ballSpeedY;
+        
+      }else if(pd2.rx == 0){
+        ballSpeedX = -ballSpeedX
+      }
       if(selected == 1){
-        ballSpeedY = Players.Player1[0].Y
-        ballSpeedX = Players.Player1[0].X
+        if(Ball.Y + 64 >= 160 && Ball.Y <= 287){
+          ballSpeedX = speed_cpu;
+        }else if(Ball.Y + 64 <= 160){
+          ballSpeedX = -speed_cpu;
+          ballSpeedY = -speed_cpu;
+        }else if(Ball.Y >= 287){
+          ballSpeedX = -speed_cpu;
+          ballSpeedY = speed_cpu;
+        }
+        
       }
     }
     if(selected == 1){
-      if (Players.Player1[0].Y + 100 / 2 < Ball.Y) {
-        Players.Player1[0].Y += speed_cpu;  // Ajuste a velocidade da CPU aqui
+      if (Players.Player1[0].Y < Ball.Y) {
+        Players.Player1[0].Y += speed_cpu;
       } else {
-        Players.Player1[0].Y -= speed_cpu;  // Ajuste a velocidade da CPU aqui 
+        Players.Player1[0].Y -= speed_cpu; 
       }
       
-      if (Players.Player2[0].X / 2 < Ball.Y){
-        Players.Player1[0].X += speed_cpu;  // Ajuste a velocidade da CPU aqui 
-      } else {
-        Players.Player1[0].X -= speed_cpu;  // Ajuste a velocidade da CPU aqui 
+      if (difficulty > 2){
+        if (Ball.X + 64 > 320){
+          Players.Player1[0].X -= speed_cpu;
+        } 
       }
       
     }
